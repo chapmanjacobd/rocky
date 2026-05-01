@@ -1,4 +1,4 @@
-import { hiddenChanceDeck, themeFlavors, themeLabels } from '../content'
+import { hiddenChanceDeck, themeFlavors, themeLabels, vibeLabels } from '../content'
 import type {
   GeneratedScene,
   HiddenChanceCard,
@@ -100,7 +100,7 @@ export function labelTheme(theme: string) {
 }
 
 function labelVibe(vibe: Vibe) {
-  return titleCase(vibe)
+  return vibeLabels[vibe] ?? titleCase(vibe)
 }
 
 function dotProduct(left: Partial<Record<Vibe, number>>, right: Partial<Record<Vibe, number>>) {
@@ -329,7 +329,7 @@ export function getRelatedRockys(rockys: RockyData[], match: RockyData, answers:
 }
 
 export function summarizeVibes(rocky: RockyData) {
-  return rocky.topVibes.slice(0, 2).map((vibe) => titleCase(vibe)).join(' / ')
+  return rocky.topVibes.slice(0, 2).map((vibe) => labelVibe(vibe)).join(' / ')
 }
 
 export function summarizeThemes(rocky: RockyData) {
@@ -421,19 +421,17 @@ export function describeAnswerBeat(answer: SafariAnswer) {
     'answer-beat',
   )
 
-  return `${answer.rocky.name} pushed this round toward ${theme} themes and ${leadVibe} energy, while the background weighting added a little more ${chanceTheme}. ${closer}`
+  return `${answer.rocky.name} pushed this round toward ${theme} themes, ${leadVibe} energy, and a bit more ${chanceTheme} influence. ${closer}`
 }
 
 export function describeRouteOutcome(match: RockyData, answers: SafariAnswer[]) {
-  const { profile, themeWeights, chanceWeights, chosenIds } = buildPreferenceState(answers)
+  const { profile, themeWeights, chosenIds } = buildPreferenceState(answers)
   const rankedVibes = rankProfile(profile)
   const rankedThemes = sortMapEntries(themeWeights)
-  const rankedChanceThemes = sortMapEntries(chanceWeights)
   const leadVibe = rankedVibes[0]?.[0] ?? match.topVibes[0]
   const supportVibe = rankedVibes[1]?.[0] ?? match.topVibes[1] ?? leadVibe
   const leadTheme = rankedThemes[0]?.[0] ?? match.primaryTheme
   const supportTheme = rankedThemes[1]?.[0] ?? match.themes[1] ?? leadTheme
-  const boostedTheme = rankedChanceThemes[0]?.[0] ?? leadTheme
   const matchWasChosenEarlier = chosenIds.has(match.slug)
   const routeTitle = vibeRouteTitles[leadVibe]
   const routeFlavor = themeFlavors[leadTheme] ?? themeFlavors.classic
@@ -444,6 +442,5 @@ export function describeRouteOutcome(match: RockyData, answers: SafariAnswer[]) 
     compatibility: matchWasChosenEarlier
       ? `${match.name} ranks first because you repeatedly gravitated toward the same mix of themes and visual energy. ${routeFlavor}`
       : `${match.name} ranks first because your answers built a strong profile match for its ${vibePhrases[match.topVibes[0]]}, ${labelTheme(match.primaryTheme).toLowerCase()} focus, and overall style. ${routeFlavor}`,
-    epilogue: `Background weighting also boosted ${labelTheme(boostedTheme).toLowerCase()} elements, which helped shape the final ordering.`,
   }
 }

@@ -395,7 +395,6 @@ function App() {
                     <h3>{routeOutcome.title}</h3>
                     <p>{routeOutcome.summary}</p>
                     <p>{routeOutcome.compatibility}</p>
-                    <p>{routeOutcome.epilogue}</p>
                   </div>
                 ) : null}
                 <p>{revealedRocky.description || buildRockyFieldGuide(revealedRocky)}</p>

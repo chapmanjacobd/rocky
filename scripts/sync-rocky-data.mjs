@@ -106,6 +106,61 @@ function slugify(value) {
     .replace(/^-+|-+$/g, '')
 }
 
+function canonicalizeName(value) {
+  return String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/^the\s+/, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}
+
+function dedupeKeyForRocky(rocky) {
+  return [
+    canonicalizeName(rocky.name),
+    String(rocky.artist).trim().toLowerCase(),
+    String(rocky.location).trim().toLowerCase(),
+    String(rocky.address).trim().toLowerCase(),
+  ].join('|')
+}
+
+function mergeRockyComments(...comments) {
+  return [...new Set(comments.map((comment) => comment?.trim()).filter(Boolean))].join('; ')
+}
+
+function pickPreferredRocky(left, right) {
+  if (left.year !== right.year) {
+    return left.year > right.year ? left : right
+  }
+
+  return left.objectId >= right.objectId ? left : right
+}
+
+function dedupeRockys(rockys) {
+  const deduped = new Map()
+
+  for (const rocky of rockys) {
+    const key = dedupeKeyForRocky(rocky)
+    const existing = deduped.get(key)
+
+    if (!existing) {
+      deduped.set(key, rocky)
+      continue
+    }
+
+    const preferred = pickPreferredRocky(existing, rocky)
+    const other = preferred === existing ? rocky : existing
+
+    deduped.set(key, {
+      ...preferred,
+      description: preferred.description || other.description,
+      comment: mergeRockyComments(other.comment, preferred.comment),
+    })
+  }
+
+  return [...deduped.values()]
+}
+
 function asBoolean(value) {
   return String(value).trim().toLowerCase() === 'yes'
 }
@@ -254,7 +309,9 @@ async function main() {
     })
   }
 
-  rockys.sort((left, right) => {
+  const dedupedRockys = dedupeRockys(rockys)
+
+  dedupedRockys.sort((left, right) => {
     if (left.year !== right.year) {
       return right.year - left.year
     }
@@ -262,9 +319,9 @@ async function main() {
     return left.name.localeCompare(right.name)
   })
 
-  await writeFile(dataOutputPath, `${JSON.stringify(rockys, null, 2)}\n`, 'utf8')
+  await writeFile(dataOutputPath, `${JSON.stringify(dedupedRockys, null, 2)}\n`, 'utf8')
 
-  console.log(`Synced ${rockys.length} Rockys from ${sourceDir}`)
+  console.log(`Synced ${dedupedRockys.length} Rockys from ${sourceDir}`)
 }
 
 main().catch((error) => {

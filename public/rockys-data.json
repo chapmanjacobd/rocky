@@ -3088,7 +3088,7 @@
     "lat": 40.45831812,
     "mapsUrl": "https://www.google.com/maps/search/?api=1&query=40.45831812,-90.64571391",
     "description": "",
-    "comment": "Originally 133 S Lafayette",
+    "comment": "Moved from the Square; Originally 133 S Lafayette",
     "retired": false,
     "privateResidence": false,
     "imagePath": "/rockys/36_91_The_Bat_Dog.avif",
@@ -4348,51 +4348,6 @@
       "bold"
     ],
     "venueLabel": "Macomb Country Club"
-  },
-  {
-    "objectId": 132,
-    "id": 38,
-    "slug": "bat-dog-38",
-    "name": "Bat Dog",
-    "location": "McAlister's Deli",
-    "address": "1635 E Jackson St",
-    "city": "Macomb",
-    "artist": "Bill Howard",
-    "year": 2015,
-    "alpha": false,
-    "indoors": false,
-    "campus": false,
-    "sponsor": "McAlister's Deli",
-    "long": -90.6457136,
-    "lat": 40.45831905,
-    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=40.45831905,-90.6457136",
-    "description": "",
-    "comment": "Moved from the Square",
-    "retired": false,
-    "privateResidence": false,
-    "imagePath": "/rockys/132_38_Bat_Dog.avif",
-    "relativeImagePath": "images/132_38_Bat_Dog.png",
-    "themes": [
-      "heroic",
-      "spooky"
-    ],
-    "primaryTheme": "heroic",
-    "vibeScores": {
-      "dreamy": 3,
-      "chaotic": 2,
-      "romantic": 0,
-      "bold": 5,
-      "brainy": 0,
-      "cozy": 0,
-      "glam": 1,
-      "wild": 2
-    },
-    "topVibes": [
-      "bold",
-      "dreamy",
-      "chaotic"
-    ],
-    "venueLabel": "McAlister's Deli"
   },
   {
     "objectId": 64,

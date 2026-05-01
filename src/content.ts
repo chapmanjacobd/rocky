@@ -3,7 +3,7 @@ import type { HiddenChanceCard, SceneSpec, ScenarioType, Vibe } from './types'
 export const vibeLabels: Record<Vibe, string> = {
   dreamy: 'Dreamy',
   chaotic: 'Chaotic',
-  romantic: 'Romantic',
+  romantic: 'Warm',
   bold: 'Bold',
   brainy: 'Brainy',
   cozy: 'Cozy',
@@ -67,8 +67,8 @@ export const safariScenes: SceneSpec[] = [
     options: [
       {
         id: 'stargazer',
-        label: 'The one glowing like it already knows your birth chart',
-        blurb: 'Soft omens. Ominous charm. Immediate eye contact.',
+        label: 'The one glowing like it already arrived with its own mythology',
+        blurb: 'Soft omens, cosmic detail, and instant atmosphere.',
         preferredThemes: ['cosmic', 'campus'],
         vibeFocus: { dreamy: 4, brainy: 2, bold: 1 },
       },
@@ -103,7 +103,7 @@ export const safariScenes: SceneSpec[] = [
       },
       {
         id: 'park-date',
-        label: 'The one who acts casual while absolutely engineering tenderness',
+        label: 'The one that feels calm, balanced, and carefully composed',
         blurb: 'Windblown, calm, and carefully composed.',
         preferredThemes: ['floral', 'cozy', 'nature'],
         vibeFocus: { cozy: 3, romantic: 3, dreamy: 1 },
@@ -140,7 +140,7 @@ export const safariScenes: SceneSpec[] = [
       {
         id: 'street-runin',
         label: 'The one who appears mid-chaos and somehow improves the choreography',
-        blurb: 'Momentum with eye contact.',
+        blurb: 'Momentum, motion, and excellent timing.',
         preferredThemes: ['sporty', 'heroic', 'rebel'],
         vibeFocus: { bold: 3, wild: 2, chaotic: 2 },
       },
@@ -161,8 +161,8 @@ export const safariScenes: SceneSpec[] = [
       },
       {
         id: 'picnic-detour',
-        label: 'The one who somehow packed fruit, blankets, and a reason to sit closer than necessary',
-        blurb: 'Soft logistics. Very unsafe tenderness.',
+        label: 'The one built around blankets, fruit, and an unusually well-composed setting',
+        blurb: 'Soft logistics and a very cohesive visual mood.',
         preferredThemes: ['cozy', 'nature', 'floral'],
         vibeFocus: { cozy: 3, romantic: 3, dreamy: 1 },
       },
@@ -220,14 +220,14 @@ export const safariScenes: SceneSpec[] = [
       {
         id: 'pastoral-repeat',
         label: 'The one who turns every reappearance into a soft-focus seasonal event',
-        blurb: 'Petals again. You are not beating the allegations.',
+        blurb: 'Petals again, with a clear seasonal identity.',
         preferredThemes: ['nature', 'floral', 'hometown'],
         vibeFocus: { dreamy: 2, romantic: 2, cozy: 2 },
       },
       {
         id: 'electric-repeat',
         label: 'The one who keeps arriving with volume, velocity, and a tiny amount of risk',
-        blurb: 'You were never going to choose caution.',
+        blurb: 'Big motion, bright contrast, and no interest in caution.',
         preferredThemes: ['rebel', 'sporty', 'abstract'],
         vibeFocus: { chaotic: 3, bold: 2, glam: 2 },
       },
@@ -242,7 +242,7 @@ export const safariScenes: SceneSpec[] = [
       {
         id: 'lucky-bloom',
         label: 'The one suddenly favored by timing, weather, and absurd floral luck',
-        blurb: 'A suspiciously kind universe.',
+        blurb: 'A favorable setup for color, setting, and floral detail.',
         preferredThemes: ['floral', 'nature', 'cozy'],
         vibeFocus: { romantic: 2, dreamy: 2, cozy: 1 },
       },
@@ -256,7 +256,7 @@ export const safariScenes: SceneSpec[] = [
       {
         id: 'lucky-detour',
         label: 'The one who somehow profits from every sudden detour and rule bend',
-        blurb: 'Excellent luck. Dubious methods.',
+        blurb: 'Excellent timing and slightly dubious methods.',
         preferredThemes: ['rebel', 'heroic', 'sporty'],
         vibeFocus: { chaotic: 2, wild: 2, bold: 2 },
       },
