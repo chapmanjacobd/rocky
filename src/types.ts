@@ -11,7 +11,13 @@ export const vibeKeys = [
 
 export type Vibe = (typeof vibeKeys)[number]
 
-export type ScenarioType = 'first-date' | 'random-encounter' | 'chance' | 'finale'
+export type ScenarioType =
+  | 'first-date'
+  | 'second-date'
+  | 'random-encounter'
+  | 'chance'
+  | 'third-date'
+  | 'finale'
 
 export interface RockyData {
   objectId: number

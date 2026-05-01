@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import './App.css'
-import { safariScenes, themeFlavors, themeLabels, vibeLabels } from './content'
+import { safariScenes, scenarioLabels, themeLabels, vibeLabels } from './content'
 import {
+  buildRockyFieldGuide,
+  buildRockyTeaser,
   buildSafariRun,
+  describeAnswerBeat,
+  describeRouteOutcome,
   getRelatedRockys,
   labelTheme,
   matchTruePup,
@@ -72,6 +76,10 @@ function App() {
   const relatedRockys = useMemo(
     () => (revealedRocky ? getRelatedRockys(rockys, revealedRocky, answers) : []),
     [answers, revealedRocky, rockys],
+  )
+  const routeOutcome = useMemo(
+    () => (revealedRocky ? describeRouteOutcome(revealedRocky, answers) : undefined),
+    [answers, revealedRocky],
   )
 
   const themeCounts = useMemo(() => {
@@ -157,9 +165,6 @@ function App() {
   }
 
   const revealedTheme = revealedRocky ? labelTheme(revealedRocky.primaryTheme) : ''
-  const revealedFlavor = revealedRocky
-    ? themeFlavors[revealedRocky.primaryTheme] ?? themeFlavors.classic
-    : ''
 
   return (
     <main className="page-shell">
@@ -235,7 +240,7 @@ function App() {
           <>
             <div className="scene-header">
               <p className="mini-label">
-                Scene {currentSceneIndex + 1} of {safariScenes.length}
+                Scene {currentSceneIndex + 1} of {safariScenes.length} · {scenarioLabels[currentScene.scenarioType]}
               </p>
               <h3>{currentScene.title}</h3>
               <p>{currentScene.prompt}</p>
@@ -281,13 +286,16 @@ function App() {
               </div>
             </div>
             <div className="glimpse-grid">
-              {answers.map(({ rocky, option, sceneTitle }) => (
-                <article key={`${rocky.slug}-${option.id}`} className="glimpse-card">
-                  <img src={rocky.imagePath} alt={rocky.name} loading="lazy" />
+              {answers.map((answer) => (
+                <article key={`${answer.rocky.slug}-${answer.option.id}`} className="glimpse-card">
+                  <img src={answer.rocky.imagePath} alt={answer.rocky.name} loading="lazy" />
                   <div>
-                    <p className="mini-label">{sceneTitle}</p>
-                    <h4>{rocky.name}</h4>
-                    <p>{option.blurb}</p>
+                    <p className="mini-label">
+                      {answer.sceneTitle} · {scenarioLabels[answer.sceneType]}
+                    </p>
+                    <h4>{answer.rocky.name}</h4>
+                    <p>{answer.option.blurb}</p>
+                    <p className="glimpse-beat">{describeAnswerBeat(answer)}</p>
                   </div>
                 </article>
               ))}
@@ -306,14 +314,19 @@ function App() {
               <p className="reveal-lede">
                 The archive has spoken: you are on the <strong>{revealedTheme}</strong> route.
               </p>
-              <p>{revealedFlavor}</p>
+              {routeOutcome ? (
+                <div className="route-dossier">
+                  <p className="mini-label">Route reading</p>
+                  <h3>{routeOutcome.title}</h3>
+                  <p>{routeOutcome.summary}</p>
+                  <p>{routeOutcome.compatibility}</p>
+                  <p>{routeOutcome.epilogue}</p>
+                </div>
+              ) : null}
+              <p>{revealedRocky.description || buildRockyFieldGuide(revealedRocky)}</p>
+              {revealedRocky.description ? <p className="generated-note">{buildRockyFieldGuide(revealedRocky)}</p> : null}
               <p>
                 <strong>Temperament:</strong> {summarizeVibes(revealedRocky)}.
-              </p>
-              <p>
-                <strong>Why it fits:</strong> Your route kept rewarding {revealedRocky.topVibes[0]} energy and{' '}
-                {revealedRocky.topVibes[1] ?? revealedRocky.topVibes[0]} restraint, while the hidden luck system
-                quietly kept nudging you toward {revealedTheme.toLowerCase()} trouble.
               </p>
 
               <div className="metadata-grid">
@@ -366,7 +379,7 @@ function App() {
                   <img src={rocky.imagePath} alt={rocky.name} loading="lazy" />
                   <div>
                     <h4>{rocky.name}</h4>
-                    <p>{themeFlavors[rocky.primaryTheme] ?? themeFlavors.classic}</p>
+                    <p>{buildRockyTeaser(rocky)}</p>
                     {rocky.mapsUrl ? (
                       <a href={rocky.mapsUrl} target="_blank" rel="noreferrer">
                         Google Maps
@@ -432,6 +445,7 @@ function App() {
                   {rocky.description ||
                     `${rocky.name} is tagged ${summarizeThemes(rocky).toLowerCase()} and feels dangerously well cast.`}
                 </p>
+                <p className="archive-note">{buildRockyFieldGuide(rocky)}</p>
                 <div className="metadata-grid compact">
                   <div>
                     <span>Artist</span>

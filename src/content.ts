@@ -11,6 +11,15 @@ export const vibeLabels: Record<Vibe, string> = {
   wild: 'Wild',
 }
 
+export const scenarioLabels: Record<ScenarioType, string> = {
+  'first-date': 'First Date',
+  'second-date': 'Second Date',
+  'random-encounter': 'Random Encounter',
+  chance: 'Chance',
+  'third-date': 'Third Date',
+  finale: 'Finale',
+}
+
 export const themeLabels: Record<string, string> = {
   cosmic: 'Cosmic',
   floral: 'Floral',
@@ -138,6 +147,64 @@ export const safariScenes: SceneSpec[] = [
     ],
   },
   {
+    id: 'planned-detour',
+    scenarioType: 'second-date',
+    title: 'Second Date, Suspiciously Intentional',
+    prompt: 'Now they are planning things on purpose. Which Rocky turns one small detour into a very real escalation?',
+    options: [
+      {
+        id: 'bookshop-detour',
+        label: 'The one who says “just one stop” and walks you into a perfect little intellectual ambush',
+        blurb: 'Annotated flirting. Niche references. Emotional premeditation.',
+        preferredThemes: ['artsy', 'campus', 'classic'],
+        vibeFocus: { brainy: 3, romantic: 2, dreamy: 1 },
+      },
+      {
+        id: 'picnic-detour',
+        label: 'The one who somehow packed fruit, blankets, and a reason to sit closer than necessary',
+        blurb: 'Soft logistics. Very unsafe tenderness.',
+        preferredThemes: ['cozy', 'nature', 'floral'],
+        vibeFocus: { cozy: 3, romantic: 3, dreamy: 1 },
+      },
+      {
+        id: 'neon-detour',
+        label: 'The one who detours into a carnival-grade side quest and acts like this is normal',
+        blurb: 'Brass, velocity, and deeply unserious confidence.',
+        preferredThemes: ['rebel', 'sporty', 'glam'],
+        vibeFocus: { bold: 2, chaotic: 3, glam: 2 },
+      },
+    ],
+  },
+  {
+    id: 'domestic-tension',
+    scenarioType: 'second-date',
+    title: 'Accidental Domesticity',
+    prompt: 'The route briefly pretends you already know each other. Which Rocky makes ordinary tasks feel catastrophically intimate?',
+    options: [
+      {
+        id: 'grocery-theory',
+        label: 'The one who becomes devastating in a grocery aisle and somehow turns produce into subtext',
+        blurb: 'Domestic realism with a body count.',
+        preferredThemes: ['hometown', 'cozy', 'classic'],
+        vibeFocus: { cozy: 3, brainy: 1, romantic: 2 },
+      },
+      {
+        id: 'museum-errand',
+        label: 'The one who treats every casual errand like a secret elective in yearning',
+        blurb: 'Academic flirtation in broad daylight.',
+        preferredThemes: ['artsy', 'abstract', 'campus'],
+        vibeFocus: { brainy: 3, dreamy: 1, romantic: 1 },
+      },
+      {
+        id: 'afterparty-errand',
+        label: 'The one who says “help me with one thing” and drags you into glamorous disarray',
+        blurb: 'Questionable plans. Impeccable chemistry.',
+        preferredThemes: ['rebel', 'heroic', 'mythic'],
+        vibeFocus: { glam: 2, wild: 2, chaotic: 2 },
+      },
+    ],
+  },
+  {
     id: 'second-pass',
     scenarioType: 'random-encounter',
     title: 'You Keep Running Into This Dog',
@@ -196,6 +263,35 @@ export const safariScenes: SceneSpec[] = [
     ],
   },
   {
+    id: 'third-date-line',
+    scenarioType: 'third-date',
+    title: 'Third Date, No More Alibis',
+    prompt: 'By now the joke is over. Which Rocky makes honesty feel unavoidable and a little bit fatal?',
+    options: [
+      {
+        id: 'soft-confession',
+        label: 'The one who lowers the volume, says one true thing, and lets it hit like weather',
+        blurb: 'No spectacle. Total damage.',
+        preferredThemes: ['classic', 'cozy', 'romantic'],
+        vibeFocus: { romantic: 3, cozy: 2, dreamy: 1 },
+      },
+      {
+        id: 'brainy-confession',
+        label: 'The one who confesses through theory, symbolism, and one devastatingly careful question',
+        blurb: 'You are being loved via subtext again.',
+        preferredThemes: ['campus', 'artsy', 'cosmic'],
+        vibeFocus: { brainy: 3, dreamy: 2, romantic: 1 },
+      },
+      {
+        id: 'reckless-confession',
+        label: 'The one who admits it mid-motion and makes impulse look like destiny',
+        blurb: 'Terrible timing. Incredible effect.',
+        preferredThemes: ['heroic', 'rebel', 'sporty'],
+        vibeFocus: { bold: 3, wild: 2, chaotic: 1 },
+      },
+    ],
+  },
+  {
     id: 'true-pup-threshold',
     scenarioType: 'finale',
     title: 'Threshold Moment',
@@ -241,6 +337,26 @@ export const hiddenChanceDeck: Record<ScenarioType, HiddenChanceCard[]> = {
       vibeFocus: { brainy: 2, dreamy: 1 },
     },
   ],
+  'second-date': [
+    {
+      id: 'borrowed-jacket',
+      boostThemes: ['cozy', 'classic', 'hometown'],
+      suppressThemes: ['patriotic'],
+      vibeFocus: { cozy: 2, romantic: 1 },
+    },
+    {
+      id: 'shared-bite',
+      boostThemes: ['floral', 'nature', 'romantic'],
+      suppressThemes: ['abstract'],
+      vibeFocus: { romantic: 2, dreamy: 1 },
+    },
+    {
+      id: 'tiny-public-scandal',
+      boostThemes: ['rebel', 'glam', 'heroic'],
+      suppressThemes: ['classic'],
+      vibeFocus: { glam: 1, chaotic: 1, bold: 2 },
+    },
+  ],
   'random-encounter': [
     {
       id: 'rain-delay',
@@ -279,6 +395,26 @@ export const hiddenChanceDeck: Record<ScenarioType, HiddenChanceCard[]> = {
       boostThemes: ['classic', 'hometown', 'cozy'],
       suppressThemes: ['sporty'],
       vibeFocus: { cozy: 2, brainy: 1 },
+    },
+  ],
+  'third-date': [
+    {
+      id: 'almost-hand-hold',
+      boostThemes: ['classic', 'cozy', 'romantic'],
+      suppressThemes: ['sporty'],
+      vibeFocus: { romantic: 2, cozy: 1 },
+    },
+    {
+      id: 'say-it-clearly',
+      boostThemes: ['campus', 'artsy', 'mythic'],
+      suppressThemes: ['patriotic'],
+      vibeFocus: { brainy: 2, dreamy: 1, romantic: 1 },
+    },
+    {
+      id: 'parking-lot-fireworks',
+      boostThemes: ['heroic', 'rebel', 'glam'],
+      suppressThemes: ['cozy'],
+      vibeFocus: { bold: 2, wild: 1, glam: 1 },
     },
   ],
   finale: [

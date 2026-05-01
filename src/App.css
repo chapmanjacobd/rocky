@@ -43,6 +43,7 @@
 .section-heading h2,
 .scene-header h3,
 .reveal-copy h2,
+.route-dossier h3,
 .archive-card h3,
 .choice-card h4,
 .related-card h4,
@@ -309,6 +310,12 @@
   padding: 14px;
 }
 
+.glimpse-beat,
+.generated-note,
+.archive-note {
+  color: var(--text-muted);
+}
+
 .reveal-panel {
   display: grid;
   grid-template-columns: minmax(280px, 440px) minmax(0, 1fr);
@@ -333,6 +340,28 @@
 .reveal-lede {
   font-size: 1.2rem;
   color: var(--text-strong);
+}
+
+.route-dossier {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.route-dossier h3 {
+  margin: 0;
+  color: var(--text-strong);
+  font-size: 1.5rem;
+}
+
+.route-dossier p,
+.generated-note,
+.archive-note,
+.glimpse-beat {
+  margin: 0;
 }
 
 .metadata-grid {
@@ -413,6 +442,12 @@
 
 .archive-body {
   min-height: 4.7em;
+}
+
+.archive-note {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .archive-footer {
