@@ -7,6 +7,7 @@
 .topbar,
 .hero-panel,
 .stat-card,
+.page-card,
 .choice-card,
 .hero-card,
 .status-card,
@@ -44,6 +45,7 @@
 .scene-header h3,
 .reveal-copy h2,
 .route-dossier h3,
+.page-card h2,
 .archive-card h3,
 .choice-card h4,
 .related-card h4,
@@ -62,6 +64,12 @@
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
+}
+
+.topbar-copy {
+  margin: 12px 0 0;
+  max-width: 40ch;
+  color: var(--text-muted);
 }
 
 .topbar-links a,
@@ -178,6 +186,44 @@
   gap: 12px;
 }
 
+.page-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.page-card {
+  display: grid;
+  gap: 18px;
+  padding: 28px;
+  border-radius: 28px;
+}
+
+.page-card h2 {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 3rem);
+  line-height: 1;
+}
+
+.page-card p {
+  margin: 0;
+}
+
+.page-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: var(--text-muted);
+}
+
+.page-card-meta span {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -258,9 +304,10 @@
 .reveal-image img,
 .glimpse-card img {
   display: block;
-  width: 100%;
+  width: calc(100% - 16px);
+  margin: 8px auto;
   aspect-ratio: 4 / 5;
-  object-fit: cover;
+  object-fit: contain;
   background: rgba(255, 255, 255, 0.04);
 }
 
@@ -469,6 +516,7 @@
   .archive-grid,
   .related-grid,
   .glimpse-grid,
+  .page-grid,
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -499,6 +547,7 @@
   .archive-grid,
   .related-grid,
   .glimpse-grid,
+  .page-grid,
   .stats-grid,
   .metadata-grid {
     grid-template-columns: 1fr;
