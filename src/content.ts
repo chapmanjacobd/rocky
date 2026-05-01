@@ -12,11 +12,11 @@ export const vibeLabels: Record<Vibe, string> = {
 }
 
 export const scenarioLabels: Record<ScenarioType, string> = {
-  'first-date': 'First Date',
-  'second-date': 'Second Date',
-  'random-encounter': 'Random Encounter',
-  chance: 'Chance',
-  'third-date': 'Third Date',
+  'first-date': 'Opening',
+  'second-date': 'Middle Round',
+  'random-encounter': 'Wildcard',
+  chance: 'Bonus Signal',
+  'third-date': 'Late Round',
   finale: 'Finale',
 }
 
@@ -40,30 +40,30 @@ export const themeLabels: Record<string, string> = {
 }
 
 export const themeFlavors: Record<string, string> = {
-  cosmic: 'You keep falling for the one that looks like it already knows the ending.',
-  floral: 'You clearly have a weakness for petals, tenderness, and beautifully timed emotional damage.',
-  artsy: 'You like your feelings filtered through references, texture, and one extremely good museum label.',
-  rebel: 'You are not here for subtlety. You want glitter, nerve, and a little social risk.',
-  sporty: 'You romance momentum. If the vibe can sprint, leap, or dramatically point into the distance, you are in.',
-  heroic: 'You want a Rocky with plot armor, conviction, and a cape in spirit if not in paint.',
-  cozy: 'You were always going to choose the one that feels like a soft seat by the window after rain.',
-  spooky: 'You enjoy a little atmosphere with your affection. Some fog. Some menace. A lot of yearning.',
-  nature: 'You trust the route with weather, blossoms, and the sense that migration is part of the story.',
-  abstract: 'You want the interesting one. The one people do not fully understand until page 47.',
-  mythic: 'You prefer a Rocky with prophecy energy and maybe one impossible accessory.',
-  patriotic: 'You answer strongly to ceremony, banners, and a certain stately sincerity.',
-  hometown: 'You keep choosing the Rocky that feels rooted, familiar, and weirdly protective.',
-  campus: 'You enjoy a little academia in the air: longing, ambition, and suspiciously good timing.',
-  legacy: 'You notice the originals, the standard-bearers, the dogs who arrive with lore already attached.',
-  classic: 'You keep returning to the route that feels timeless, balanced, and quietly sure of itself.',
+  cosmic: 'You consistently respond to mystery, scale, and a slightly otherworldly look.',
+  floral: 'You notice softness, pattern, and decorative detail right away.',
+  artsy: 'You favor pieces with references, texture, and a curated point of view.',
+  rebel: 'You prefer standout choices with edge, volume, and a little risk.',
+  sporty: 'You gravitate toward motion, action, and a sense of momentum.',
+  heroic: 'You respond to confidence, clarity, and larger-than-life energy.',
+  cozy: 'You keep returning to pieces that feel welcoming and familiar.',
+  spooky: 'You like atmosphere, contrast, and a slightly mysterious mood.',
+  nature: 'You notice organic shapes, outdoor settings, and seasonal cues.',
+  abstract: 'You like the more unusual picks that reward a second look.',
+  mythic: 'You respond to dramatic symbolism and larger visual storytelling.',
+  patriotic: 'You notice ceremony, tradition, and formal presentation.',
+  hometown: 'You favor pieces that feel grounded, local, and recognizable.',
+  campus: 'You like academic settings, references, and thoughtful details.',
+  legacy: 'You notice the originals and the pieces with strong history behind them.',
+  classic: 'You consistently return to balanced, timeless-looking choices.',
 }
 
 export const safariScenes: SceneSpec[] = [
   {
     id: 'opening-glance',
     scenarioType: 'first-date',
-    title: 'Opening Glance',
-    prompt: 'Three Rockys notice you first. Which one instantly turns your internal monologue into narration?',
+    title: 'Opening Pick',
+    prompt: 'Three Rockys stand out immediately. Which one grabs your attention first?',
     options: [
       {
         id: 'stargazer',
@@ -74,15 +74,15 @@ export const safariScenes: SceneSpec[] = [
       },
       {
         id: 'bouquet',
-        label: 'The bloom-drenched sweetheart with suspicious emotional range',
-        blurb: 'Petal drama, spring ache, and a very good profile shot.',
+        label: 'The bloom-drenched Rocky with strong floral detail',
+        blurb: 'Petal-heavy, seasonal, and visually memorable.',
         preferredThemes: ['floral', 'nature'],
         vibeFocus: { romantic: 4, dreamy: 2, cozy: 1 },
       },
       {
         id: 'menace',
-        label: 'The glam menace who would absolutely text you in all caps',
-        blurb: 'Disco static. Dangerous charm. Zero indoor voice.',
+        label: 'The glam standout with the loudest visual presence',
+        blurb: 'Disco static, bright contrast, and zero subtlety.',
         preferredThemes: ['rebel', 'abstract'],
         vibeFocus: { chaotic: 4, glam: 2, bold: 1 },
       },
@@ -91,27 +91,27 @@ export const safariScenes: SceneSpec[] = [
   {
     id: 'first-date-table',
     scenarioType: 'first-date',
-    title: 'The First Date Somehow Escalates',
-    prompt: 'The drinks arrive, the lighting turns cinematic, and one Rocky becomes impossible to play cool around.',
+    title: 'First Impression',
+    prompt: 'Looking a little longer changes the read. Which Rocky feels strongest on a second look?',
     options: [
       {
         id: 'museum-date',
         label: 'The one who makes every offhand comment sound like curation',
-        blurb: 'Very articulate. Possibly dangerous in a gallery.',
+        blurb: 'Thoughtful, reference-heavy, and gallery-ready.',
         preferredThemes: ['artsy', 'mythic', 'campus'],
         vibeFocus: { brainy: 4, romantic: 1, glam: 1 },
       },
       {
         id: 'park-date',
         label: 'The one who acts casual while absolutely engineering tenderness',
-        blurb: 'Windblown sincerity. Impeccable emotional timing.',
+        blurb: 'Windblown, calm, and carefully composed.',
         preferredThemes: ['floral', 'cozy', 'nature'],
         vibeFocus: { cozy: 3, romantic: 3, dreamy: 1 },
       },
       {
         id: 'neon-date',
         label: 'The one who says “trust me” and then chooses the loudest possible venue',
-        blurb: 'Questionable planning. Excellent chemistry.',
+        blurb: 'Big energy, bright color, and no hesitation.',
         preferredThemes: ['rebel', 'sporty', 'heroic'],
         vibeFocus: { glam: 2, chaotic: 3, bold: 2 },
       },
@@ -120,20 +120,20 @@ export const safariScenes: SceneSpec[] = [
   {
     id: 'missed-connection',
     scenarioType: 'random-encounter',
-    title: 'Bad Timing, Excellent Plot',
-    prompt: 'A random encounter hits at exactly the wrong moment. Which Rocky makes coincidence feel deeply personal?',
+    title: 'Unexpected Favorite',
+    prompt: 'A Rocky shows up where you were not expecting it. Which surprise appearance works best for you?',
     options: [
       {
         id: 'rainy-runin',
         label: 'The one standing there like weather has been personally arranged for them',
-        blurb: 'Rain, atmosphere, and entirely avoidable longing.',
+        blurb: 'Rain, atmosphere, and strong visual mood.',
         preferredThemes: ['spooky', 'cosmic', 'classic'],
         vibeFocus: { dreamy: 3, romantic: 2, bold: 1 },
       },
       {
         id: 'market-runin',
         label: 'The one you bump into while pretending not to buy something soft and domestic',
-        blurb: 'Sweetness. Proximity. A very dangerous level of care.',
+        blurb: 'Warm, familiar, and easy to picture in context.',
         preferredThemes: ['cozy', 'hometown', 'floral'],
         vibeFocus: { cozy: 4, romantic: 2 },
       },
@@ -149,13 +149,13 @@ export const safariScenes: SceneSpec[] = [
   {
     id: 'planned-detour',
     scenarioType: 'second-date',
-    title: 'Second Date, Suspiciously Intentional',
-    prompt: 'Now they are planning things on purpose. Which Rocky turns one small detour into a very real escalation?',
+    title: 'Closer Look',
+    prompt: 'One Rocky starts to feel more deliberate and memorable. Which one keeps climbing your list?',
     options: [
       {
         id: 'bookshop-detour',
         label: 'The one who says “just one stop” and walks you into a perfect little intellectual ambush',
-        blurb: 'Annotated flirting. Niche references. Emotional premeditation.',
+        blurb: 'Niche references, layered detail, and strong composition.',
         preferredThemes: ['artsy', 'campus', 'classic'],
         vibeFocus: { brainy: 3, romantic: 2, dreamy: 1 },
       },
@@ -178,27 +178,27 @@ export const safariScenes: SceneSpec[] = [
   {
     id: 'domestic-tension',
     scenarioType: 'second-date',
-    title: 'Accidental Domesticity',
-    prompt: 'The route briefly pretends you already know each other. Which Rocky makes ordinary tasks feel catastrophically intimate?',
+    title: 'Everyday Setting',
+    prompt: 'Placed in an ordinary setting, which Rocky still feels especially distinctive?',
     options: [
       {
         id: 'grocery-theory',
-        label: 'The one who becomes devastating in a grocery aisle and somehow turns produce into subtext',
-        blurb: 'Domestic realism with a body count.',
+        label: 'The one that still feels distinctive in a simple grocery-aisle setting',
+        blurb: 'Domestic realism with a strong point of view.',
         preferredThemes: ['hometown', 'cozy', 'classic'],
         vibeFocus: { cozy: 3, brainy: 1, romantic: 2 },
       },
       {
         id: 'museum-errand',
-        label: 'The one who treats every casual errand like a secret elective in yearning',
-        blurb: 'Academic flirtation in broad daylight.',
+        label: 'The one who turns a casual errand into something more thoughtful',
+        blurb: 'Academic texture in broad daylight.',
         preferredThemes: ['artsy', 'abstract', 'campus'],
         vibeFocus: { brainy: 3, dreamy: 1, romantic: 1 },
       },
       {
         id: 'afterparty-errand',
         label: 'The one who says “help me with one thing” and drags you into glamorous disarray',
-        blurb: 'Questionable plans. Impeccable chemistry.',
+        blurb: 'Questionable plans, but excellent visual payoff.',
         preferredThemes: ['rebel', 'heroic', 'mythic'],
         vibeFocus: { glam: 2, wild: 2, chaotic: 2 },
       },
@@ -207,13 +207,13 @@ export const safariScenes: SceneSpec[] = [
   {
     id: 'second-pass',
     scenarioType: 'random-encounter',
-    title: 'You Keep Running Into This Dog',
-    prompt: 'At this point it is either fate or municipal overcommitment. Which Rocky keeps reappearing in your route?',
+    title: 'Repeat Standout',
+    prompt: 'Which Rocky would keep standing out even if you ran into it again and again?',
     options: [
       {
         id: 'bookish-repeat',
         label: 'The one who keeps materializing near references, symbols, and suspiciously relevant advice',
-        blurb: 'You are being romanced by subtext.',
+        blurb: 'References and symbolism keep pushing it higher.',
         preferredThemes: ['artsy', 'abstract', 'campus'],
         vibeFocus: { brainy: 3, dreamy: 1, glam: 1 },
       },
@@ -236,8 +236,8 @@ export const safariScenes: SceneSpec[] = [
   {
     id: 'luck-pivot',
     scenarioType: 'chance',
-    title: 'The Town Rearranges Itself',
-    prompt: 'Something invisible tilts the route. A message lands late. A turn opens. A coincidence becomes policy. Which Rocky benefits most?',
+    title: 'Bonus Signal',
+    prompt: 'A few background details tilt the mood. Which Rocky benefits most from that extra context?',
     options: [
       {
         id: 'lucky-bloom',
@@ -248,8 +248,8 @@ export const safariScenes: SceneSpec[] = [
       },
       {
         id: 'lucky-eclipse',
-        label: 'The one who looks even more compelling when fate gets theatrical',
-        blurb: 'Destiny with lighting cues.',
+        label: 'The one that gets stronger when the setting turns theatrical',
+        blurb: 'Extra atmosphere and strong lighting cues.',
         preferredThemes: ['cosmic', 'spooky', 'mythic'],
         vibeFocus: { dreamy: 3, glam: 1, bold: 1 },
       },
@@ -265,20 +265,20 @@ export const safariScenes: SceneSpec[] = [
   {
     id: 'third-date-line',
     scenarioType: 'third-date',
-    title: 'Third Date, No More Alibis',
-    prompt: 'By now the joke is over. Which Rocky makes honesty feel unavoidable and a little bit fatal?',
+    title: 'Clear Preference',
+    prompt: 'By now your preferences are clearer. Which Rocky feels like the most natural fit?',
     options: [
       {
         id: 'soft-confession',
-        label: 'The one who lowers the volume, says one true thing, and lets it hit like weather',
-        blurb: 'No spectacle. Total damage.',
+        label: 'The one that works through quiet detail instead of spectacle',
+        blurb: 'Low-key presentation, strong effect.',
         preferredThemes: ['classic', 'cozy', 'romantic'],
         vibeFocus: { romantic: 3, cozy: 2, dreamy: 1 },
       },
       {
         id: 'brainy-confession',
-        label: 'The one who confesses through theory, symbolism, and one devastatingly careful question',
-        blurb: 'You are being loved via subtext again.',
+        label: 'The one that communicates through theory, symbolism, and careful detail',
+        blurb: 'Structured, thoughtful, and heavy on subtext.',
         preferredThemes: ['campus', 'artsy', 'cosmic'],
         vibeFocus: { brainy: 3, dreamy: 2, romantic: 1 },
       },
@@ -294,20 +294,20 @@ export const safariScenes: SceneSpec[] = [
   {
     id: 'true-pup-threshold',
     scenarioType: 'finale',
-    title: 'Threshold Moment',
-    prompt: 'You are one choice away from your true pup. What closes the route?',
+    title: 'Final Choice',
+    prompt: 'One last choice shapes the final ranking. What kind of finish fits you best?',
     options: [
       {
         id: 'ornate-ending',
-        label: 'A dazzling confession under impossible lighting',
-        blurb: 'You want the full visual novel ending. Respect.',
+        label: 'A dramatic finish under impossible lighting',
+        blurb: 'You want the biggest visual statement.',
         preferredThemes: ['mythic', 'artsy', 'rebel'],
         vibeFocus: { glam: 3, romantic: 2, dreamy: 1 },
       },
       {
         id: 'steady-ending',
-        label: 'A quiet walk, one honest sentence, and a devastating look back',
-        blurb: 'Minimal theatrics. Maximum emotional impact.',
+        label: 'A quiet finish built around one clear moment',
+        blurb: 'Minimal theatrics, maximum clarity.',
         preferredThemes: ['classic', 'hometown', 'cozy'],
         vibeFocus: { cozy: 2, brainy: 1, romantic: 3 },
       },

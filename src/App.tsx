@@ -3,13 +3,11 @@ import './App.css'
 import { safariScenes, scenarioLabels, themeLabels, vibeLabels } from './content'
 import {
   buildRockyFieldGuide,
-  buildRockyTeaser,
   buildSafariRun,
   describeAnswerBeat,
   describeRouteOutcome,
-  getRelatedRockys,
   labelTheme,
-  matchTruePup,
+  rankRockysByAnswers,
   summarizeThemes,
   summarizeVibes,
 } from './lib/rocky'
@@ -104,14 +102,11 @@ function App() {
   const currentGeneratedScene = safariRun[currentSceneIndex]
   const currentScene = currentGeneratedScene?.scene
   const currentCards = currentGeneratedScene?.cast ?? []
-  const revealedRocky = useMemo(
-    () => (answers.length === safariScenes.length ? matchTruePup(rockys, answers) : undefined),
+  const rankedResults = useMemo(
+    () => (answers.length === safariScenes.length ? rankRockysByAnswers(rockys, answers) : []),
     [answers, rockys],
   )
-  const relatedRockys = useMemo(
-    () => (revealedRocky ? getRelatedRockys(rockys, revealedRocky, answers) : []),
-    [answers, revealedRocky, rockys],
-  )
+  const revealedRocky = rankedResults[0]?.rocky
   const routeOutcome = useMemo(
     () => (revealedRocky ? describeRouteOutcome(revealedRocky, answers) : undefined),
     [answers, revealedRocky],
@@ -199,10 +194,9 @@ function App() {
     setSeed((current) => current + 1)
   }
 
-  const revealedTheme = revealedRocky ? labelTheme(revealedRocky.primaryTheme) : ''
   const activePageLabel = activeView === 'safari' ? 'Safari' : activeView === 'roster' ? 'Roster' : ''
   const safariProgressCopy =
-    answers.length > 0 ? `${answers.length} of ${safariScenes.length} route beats answered.` : 'Fresh route. No emotional damage yet.'
+    answers.length > 0 ? `${answers.length} of ${safariScenes.length} quiz questions answered.` : 'Start the quiz to build your Rocky profile.'
   const leadingThemesCopy =
     themeCounts.length > 0 ? themeCounts.slice(0, 3).map(([theme]) => labelTheme(theme)).join(' / ') : 'Loading archive moods...'
 
@@ -211,14 +205,12 @@ function App() {
       <header className="topbar">
         <div>
           <p className="eyebrow">True Pup Safari</p>
-          <h1 className="brand">
-            {activeView === 'home' ? 'Choose badly, feel deeply, meet your Rocky.' : activePageLabel}
-          </h1>
+          <h1 className="brand">{activeView === 'home' ? 'Which Rocky are you?' : activePageLabel}</h1>
           {activeView === 'home' ? null : (
             <p className="topbar-copy">
               {activeView === 'safari'
-                ? 'A standalone route screen for the full dramatic quiz run.'
-                : 'A standalone archive screen for browsing the full Rocky cast.'}
+                ? 'Take the quiz and see which Rockys best match your choices.'
+                : 'Browse the full Rocky archive on its own page.'}
             </p>
           )}
         </div>
@@ -233,10 +225,10 @@ function App() {
         <>
           <section className="hero-panel">
             <div className="hero-copy">
-              <p className="kicker">Part field guide, part personality quiz, part public-art visual novel.</p>
+              <p className="kicker">Part field guide, part personality quiz, part public-art archive.</p>
               <p className="hero-lede">
-                You do not need to travel anywhere. Pick which screen you want to disappear into, then let the archive
-                decide how intense the next few minutes get.
+                Explore the Rockys two ways: take a short quiz to find your closest matches, or browse the full roster
+                directly.
               </p>
               <div className="hero-actions">
                 <a className="button button-primary" href="#safari">
@@ -251,9 +243,9 @@ function App() {
             <aside className="hero-card">
               <p className="mini-label">How it works</p>
               <ol className="steps-list">
-                <li>Use Safari for the full route-based quiz experience.</li>
-                <li>Use Roster when you want the complete archive without the quiz flow.</li>
-                <li>Jump between them like separate little destinations.</li>
+                <li>Use Safari to answer a short series of Rocky preference questions.</li>
+                <li>See your top match plus a ranked archive based on your selections.</li>
+                <li>Use Roster when you want to browse the full collection directly.</li>
               </ol>
             </aside>
           </section>
@@ -261,11 +253,11 @@ function App() {
           <section className="page-grid" aria-label="Page destinations">
             <article className="page-card">
               <p className="mini-label">Safari</p>
-              <h2>Find the Rocky who keeps choosing you back.</h2>
+              <h2>Take the “Which Rocky are you?” quiz.</h2>
               <p>{safariProgressCopy}</p>
               <div className="page-card-meta">
-                <span>{safariScenes.length} scenes per run</span>
-                <span>{revealedRocky ? `Current match: ${revealedRocky.name}` : 'No reveal yet'}</span>
+                <span>{safariScenes.length} questions per run</span>
+                <span>{revealedRocky ? `Current top match: ${revealedRocky.name}` : 'No result yet'}</span>
               </div>
               <a className="button button-primary" href="#safari">
                 Enter safari
@@ -303,20 +295,20 @@ function App() {
         <section className="section-panel">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Safari sequence</p>
-              <h2>Find the Rocky who keeps choosing you back.</h2>
+              <p className="eyebrow">Safari quiz</p>
+              <h2>Which Rocky are you?</h2>
             </div>
             <div className="action-row">
               <button type="button" className="button button-secondary" onClick={restartSafari}>
-                Restart route
+                Restart quiz
               </button>
               <button type="button" className="button button-secondary" onClick={reshuffleSafari}>
-                Reshuffle cast
+                Shuffle options
               </button>
             </div>
           </div>
 
-          {loading ? <div className="status-card">Loading 132 very intense bulldogs...</div> : null}
+          {loading ? <div className="status-card">Loading the Rocky roster...</div> : null}
           {error ? <div className="status-card status-error">{error}</div> : null}
 
           {!loading && !error && currentScene ? (
@@ -364,8 +356,8 @@ function App() {
             <div className="glimpse-panel">
               <div className="section-heading compact">
                 <div>
-                  <p className="mini-label">Your route so far</p>
-                  <h3>Current emotional damage</h3>
+                  <p className="mini-label">Your selections so far</p>
+                  <h3>How your profile is taking shape</h3>
                 </div>
               </div>
               <div className="glimpse-grid">
@@ -392,14 +384,14 @@ function App() {
                 <img src={revealedRocky.imagePath} alt={revealedRocky.name} />
               </div>
               <div className="reveal-copy">
-                <p className="eyebrow">Your true pup</p>
+                <p className="eyebrow">Your top match</p>
                 <h2>{revealedRocky.name}</h2>
                 <p className="reveal-lede">
-                  The archive has spoken: you are on the <strong>{revealedTheme}</strong> route.
+                  Based on your selections, <strong>{revealedRocky.name}</strong> ranks first in the roster.
                 </p>
                 {routeOutcome ? (
                   <div className="route-dossier">
-                    <p className="mini-label">Route reading</p>
+                    <p className="mini-label">Result summary</p>
                     <h3>{routeOutcome.title}</h3>
                     <p>{routeOutcome.summary}</p>
                     <p>{routeOutcome.compatibility}</p>
@@ -409,7 +401,7 @@ function App() {
                 <p>{revealedRocky.description || buildRockyFieldGuide(revealedRocky)}</p>
                 {revealedRocky.description ? <p className="generated-note">{buildRockyFieldGuide(revealedRocky)}</p> : null}
                 <p>
-                  <strong>Temperament:</strong> {summarizeVibes(revealedRocky)}.
+                  <strong>Top vibes:</strong> {summarizeVibes(revealedRocky)}.
                 </p>
 
                 <div className="metadata-grid">
@@ -437,7 +429,7 @@ function App() {
                   </div>
                 </div>
 
-                <div className="tag-row" aria-label="Route tags">
+                <div className="tag-row" aria-label="Profile tags">
                   {revealedRocky.themes.slice(0, 4).map((theme) => (
                     <span key={`${revealedRocky.slug}-${theme}`} className="tag">
                       {themeLabels[theme] ?? theme}
@@ -448,26 +440,60 @@ function App() {
             </div>
           ) : null}
 
-          {!loading && !error && revealedRocky && relatedRockys.length > 0 ? (
+          {!loading && !error && rankedResults.length > 0 ? (
             <div className="followup-panel">
               <div className="section-heading compact">
                 <div>
-                  <p className="mini-label">Post-route recommendations</p>
-                  <h3>Other Rockys you would absolutely text back</h3>
+                  <p className="mini-label">Sorted roster</p>
+                  <h3>The full archive, ranked by your answers</h3>
                 </div>
               </div>
-              <div className="related-grid">
-                {relatedRockys.map((rocky) => (
-                  <article key={rocky.slug} className="related-card">
-                    <img src={rocky.imagePath} alt={rocky.name} loading="lazy" />
-                    <div>
-                      <h4>{rocky.name}</h4>
-                      <p>{buildRockyTeaser(rocky)}</p>
-                      {rocky.mapsUrl ? (
-                        <a href={rocky.mapsUrl} target="_blank" rel="noreferrer">
-                          Google Maps
-                        </a>
-                      ) : null}
+              <p className="results-copy">Every Rocky is ordered here from closest match to farthest match.</p>
+              <div className="archive-grid">
+                {rankedResults.map((entry, index) => (
+                  <article key={entry.rocky.slug} className="archive-card">
+                    <img src={entry.rocky.imagePath} alt={entry.rocky.name} loading="lazy" />
+                    <div className="archive-copy">
+                      <div className="archive-heading">
+                        <div>
+                          <p className="mini-label">
+                            #{index + 1} match{entry.chosenEarlier ? ' · picked in quiz' : ''}
+                          </p>
+                          <h3>{entry.rocky.name}</h3>
+                        </div>
+                        <p className="archive-vibe">
+                          {entry.rocky.topVibes.map((vibe) => vibeLabels[vibe]).join(' / ')}
+                        </p>
+                      </div>
+                      <p className="archive-body">
+                        {entry.rocky.description ||
+                          `${entry.rocky.name} is tagged ${summarizeThemes(entry.rocky).toLowerCase()} and stays consistent with your quiz pattern.`}
+                      </p>
+                      <p className="archive-note">{buildRockyFieldGuide(entry.rocky)}</p>
+                      <div className="metadata-grid compact">
+                        <div>
+                          <span>Year</span>
+                          <strong>{entry.rocky.year}</strong>
+                        </div>
+                        <div>
+                          <span>Venue</span>
+                          <strong>{entry.rocky.location || entry.rocky.address || entry.rocky.city}</strong>
+                        </div>
+                      </div>
+                      <div className="archive-footer">
+                        <div className="tag-row">
+                          {entry.rocky.themes.slice(0, 3).map((theme) => (
+                            <span key={`${entry.rocky.slug}-${theme}`} className="tag">
+                              {labelTheme(theme)}
+                            </span>
+                          ))}
+                        </div>
+                        {entry.rocky.mapsUrl ? (
+                          <a href={entry.rocky.mapsUrl} target="_blank" rel="noreferrer">
+                            Maps
+                          </a>
+                        ) : null}
+                      </div>
                     </div>
                   </article>
                 ))}
@@ -528,7 +554,7 @@ function App() {
                   </div>
                   <p className="archive-body">
                     {rocky.description ||
-                      `${rocky.name} is tagged ${summarizeThemes(rocky).toLowerCase()} and feels dangerously well cast.`}
+                      `${rocky.name} is tagged ${summarizeThemes(rocky).toLowerCase()} and stands out clearly in the archive.`}
                   </p>
                   <p className="archive-note">{buildRockyFieldGuide(rocky)}</p>
                   <div className="metadata-grid compact">

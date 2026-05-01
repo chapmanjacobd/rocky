@@ -30,36 +30,36 @@ const scenarioWeights: Record<ScenarioType, number> = {
 }
 
 const vibePhrases: Record<Vibe, string> = {
-  dreamy: 'soft-focus inevitability',
-  chaotic: 'bad-idea magnetism',
-  romantic: 'direct emotional damage',
-  bold: 'full-volume conviction',
-  brainy: 'dangerously articulate charm',
-  cozy: 'weaponized tenderness',
-  glam: 'spotlit menace',
-  wild: 'runaway momentum',
+  dreamy: 'atmospheric calm',
+  chaotic: 'high-energy contrast',
+  romantic: 'warm expressiveness',
+  bold: 'confident presence',
+  brainy: 'thoughtful detail',
+  cozy: 'welcoming energy',
+  glam: 'showpiece flair',
+  wild: 'sense of motion',
 }
 
 const vibeRouteTitles: Record<Vibe, string> = {
-  dreamy: 'Moonlit Drift Route',
-  chaotic: 'Disaster Flirt Route',
-  romantic: 'Soft Launch, Hard Feelings Route',
-  bold: 'Grand Gesture Route',
-  brainy: 'Annotated Yearning Route',
-  cozy: 'Domestic Trap Route',
-  glam: 'Velvet Menace Route',
-  wild: 'Runaway Chemistry Route',
+  dreamy: 'Dreamy Profile',
+  chaotic: 'Chaotic Profile',
+  romantic: 'Warm Profile',
+  bold: 'Bold Profile',
+  brainy: 'Brainy Profile',
+  cozy: 'Cozy Profile',
+  glam: 'Glam Profile',
+  wild: 'Wild Profile',
 }
 
 const vibeRouteOpeners: Record<Vibe, string> = {
-  dreamy: 'You kept choosing atmosphere over common sense.',
-  chaotic: 'You repeatedly rewarded chemistry that looked mildly unsafe.',
-  romantic: 'You took every invitation to feel something immediately.',
-  bold: 'You were never going to pick restraint if momentum was available.',
-  brainy: 'You made a home out of subtext, references, and suspiciously smart eye contact.',
-  cozy: 'You fell for comfort so hard it looped back around into peril.',
-  glam: 'You trusted the route with spectacle, nerve, and impossible lighting.',
-  wild: 'You kept leaning toward motion, risk, and dogs who absolutely would not slow down.',
+  dreamy: 'Your picks consistently favored atmosphere and imagination.',
+  chaotic: 'Your picks leaned toward contrast, surprise, and strong visual energy.',
+  romantic: 'Your picks consistently favored warmth and expressive details.',
+  bold: 'Your picks rewarded confidence, clarity, and momentum.',
+  brainy: 'Your picks emphasized references, structure, and thoughtful details.',
+  cozy: 'Your picks kept returning to comfort, familiarity, and warmth.',
+  glam: 'Your picks favored spectacle, polish, and standout presentation.',
+  wild: 'Your picks leaned toward motion, energy, and a sense of action.',
 }
 
 const venueRoles = {
@@ -122,6 +122,52 @@ function jitter(seed: number, ...parts: string[]) {
   return (hashString(`${seed}:${parts.join(':')}`) % 1000) / 1000
 }
 
+function isAvailableForRun(seed: number, rocky: RockyData) {
+  return jitter(seed, 'run-availability', rocky.slug) >= 0.28
+}
+
+function chooseWeightedCandidate(
+  ranked: Array<{ rocky: RockyData; score: number }>,
+  seed: number,
+  ...parts: string[]
+) {
+  if (ranked.length === 0) {
+    return undefined
+  }
+
+  const bestScore = ranked[0]?.score ?? 0
+  const candidates = ranked.slice(0, 18)
+
+  const weighted = candidates.map((entry, index) => {
+    const closeness = Math.max(0.08, 1 - (bestScore - entry.score) / 18)
+    const randomnessBoost = 0.8 + jitter(seed, ...parts, entry.rocky.slug, String(index)) * 0.45
+
+    return {
+      ...entry,
+      weight: closeness * randomnessBoost,
+    }
+  })
+
+  const totalWeight = weighted.reduce((total, entry) => total + entry.weight, 0)
+
+  if (totalWeight <= 0) {
+    return weighted[0]?.rocky
+  }
+
+  const target = jitter(seed, ...parts, 'weighted-pick') * totalWeight
+  let runningWeight = 0
+
+  for (const entry of weighted) {
+    runningWeight += entry.weight
+
+    if (target <= runningWeight) {
+      return entry.rocky
+    }
+  }
+
+  return weighted[weighted.length - 1]?.rocky
+}
+
 function selectHiddenChance(scene: SceneSpec, seed: number, sceneIndex: number) {
   const deck = hiddenChanceDeck[scene.scenarioType]
   return deck[(hashString(`${seed}:${scene.id}:${sceneIndex}`) + sceneIndex) % deck.length]
@@ -169,23 +215,29 @@ export function scoreRockyForOption(
 }
 
 export function buildSafariRun(rockys: RockyData[], scenes: SceneSpec[], seed: number): GeneratedScene[] {
+  const minimumCastSize = scenes.length * 3 + 12
+  const rotatedPool = rockys.filter((rocky) => isAvailableForRun(seed, rocky))
+  const pool = rotatedPool.length >= minimumCastSize ? rotatedPool : rockys
   const used = new Set<string>()
 
   return scenes.map((scene, sceneIndex) => {
     const hiddenChance = selectHiddenChance(scene, seed, sceneIndex)
     const cast = scene.options.map((option, optionIndex) => {
-      const ranked = rockys
+      const ranked = pool
         .filter((rocky) => !used.has(rocky.slug))
         .map((rocky) => ({
           rocky,
           score:
             scoreRockyForOption(rocky, option, scene.scenarioType, hiddenChance) +
-            jitter(seed, scene.id, option.id, rocky.slug) * 0.9 +
-            jitter(sceneIndex + optionIndex, hiddenChance.id, rocky.slug) * 0.5,
+            jitter(seed, scene.id, option.id, rocky.slug) * 1.9 +
+            jitter(sceneIndex + optionIndex, hiddenChance.id, rocky.slug) * 1.2,
         }))
         .sort((left, right) => right.score - left.score)
 
-      const selected = ranked[0]?.rocky ?? rockys[0]
+      const selected =
+        chooseWeightedCandidate(ranked, seed, scene.id, option.id, hiddenChance.id, String(sceneIndex), String(optionIndex)) ??
+        ranked[0]?.rocky ??
+        rockys[0]
       used.add(selected.slug)
       return selected
     })
@@ -236,6 +288,10 @@ function buildPreferenceState(answers: SafariAnswer[]) {
 }
 
 export function matchTruePup(rockys: RockyData[], answers: SafariAnswer[]) {
+  return rankRockysByAnswers(rockys, answers)[0]?.rocky
+}
+
+export function rankRockysByAnswers(rockys: RockyData[], answers: SafariAnswer[]) {
   const { profile, themeWeights, chosenIds } = buildPreferenceState(answers)
 
   return rockys
@@ -251,9 +307,9 @@ export function matchTruePup(rockys: RockyData[], answers: SafariAnswer[]) {
         (chosenIds.has(rocky.slug) ? 3 : 0) +
         (rocky.description ? 0.5 : 0)
 
-      return { rocky, score }
+      return { rocky, score, chosenEarlier: chosenIds.has(rocky.slug) }
     })
-    .sort((left, right) => right.score - left.score)[0]?.rocky
+    .sort((left, right) => right.score - left.score)
 }
 
 export function getRelatedRockys(rockys: RockyData[], match: RockyData, answers: SafariAnswer[]) {
@@ -315,32 +371,32 @@ export function buildRockyFieldGuide(rocky: RockyData) {
   const supportVibe = rocky.topVibes[1] ?? leadVibe
   const secondaryTheme = rocky.themes[1] ?? rocky.primaryTheme
   const opener = pickFrom(
-    ['reads as', 'plays like', 'lands as', 'comes off as'],
+    ['reads as', 'feels like', 'comes across as', 'works as'],
     rocky.slug,
     'field-guide-opener',
   )
   const closer = pickFrom(
     [
-      'It knows exactly what it is doing to the route.',
-      'Calling this “just public art” feels strategically naive.',
-      'You could behave normally about it, but the text does not support that reading.',
-      'Nobody gets out of this one emotionally untouched.',
+      'It stands out immediately in the lineup.',
+      'It reads less like a background piece and more like a centerpiece.',
+      'The combination of theme and setting gives it a clear identity.',
+      'It has a distinct point of view within the full roster.',
     ],
     rocky.slug,
     'field-guide-closer',
   )
 
-  return `${rocky.name} ${opener} a ${labelTheme(rocky.primaryTheme).toLowerCase()} ${getVenueRole(rocky)} with ${vibePhrases[leadVibe]}, a streak of ${vibePhrases[supportVibe]}, and just enough ${labelTheme(secondaryTheme).toLowerCase()} energy to keep the plot unstable. ${closer}`
+  return `${rocky.name} ${opener} a ${labelTheme(rocky.primaryTheme).toLowerCase()} ${getVenueRole(rocky)} with ${vibePhrases[leadVibe]}, a streak of ${vibePhrases[supportVibe]}, and enough ${labelTheme(secondaryTheme).toLowerCase()} energy to stay distinctive. ${closer}`
 }
 
 export function buildRockyTeaser(rocky: RockyData) {
   const leadVibe = rocky.topVibes[0]
   const teaser = pickFrom(
     [
-      'Feels like a sequel waiting to happen.',
-      'Would absolutely complicate a clean ending.',
-      'Shows up with immediate side-route potential.',
-      'Carries very strong “one more episode” energy.',
+      'Feels like a strong alternate result.',
+      'Stands out as another close match.',
+      'Has a profile that overlaps with your top picks.',
+      'Reads as a nearby fit in the ranking.',
     ],
     rocky.slug,
     'teaser',
@@ -355,17 +411,17 @@ export function describeAnswerBeat(answer: SafariAnswer) {
   const chanceTheme = labelTheme(answer.hiddenChance.boostThemes[0] ?? answer.rocky.primaryTheme).toLowerCase()
   const closer = pickFrom(
     [
-      'You were not escaping that energy twice.',
-      'The route logged that preference immediately.',
-      'That choice aged into a pattern very fast.',
-      'At that point the invisible board started taking notes.',
+      'That choice reinforced the pattern quickly.',
+      'The scoring model picked up on that preference immediately.',
+      'That answer made your overall profile more consistent.',
+      'That selection clearly strengthened the result pattern.',
     ],
     answer.sceneId,
     answer.rocky.slug,
     'answer-beat',
   )
 
-  return `${answer.rocky.name} turned this ${theme} beat into ${leadVibe} trouble, while the hidden luck system quietly fed extra ${chanceTheme} into the scene. ${closer}`
+  return `${answer.rocky.name} pushed this round toward ${theme} themes and ${leadVibe} energy, while the background weighting added a little more ${chanceTheme}. ${closer}`
 }
 
 export function describeRouteOutcome(match: RockyData, answers: SafariAnswer[]) {
@@ -384,10 +440,10 @@ export function describeRouteOutcome(match: RockyData, answers: SafariAnswer[]) 
 
   return {
     title: routeTitle,
-    summary: `${vibeRouteOpeners[leadVibe]} Across the second and third dates, the route kept reinforcing ${labelVibe(supportVibe).toLowerCase()} instincts and circling back to ${formatPair(labelTheme(leadTheme).toLowerCase(), labelTheme(supportTheme).toLowerCase())} trouble.`,
+    summary: `${vibeRouteOpeners[leadVibe]} Across the quiz, your answers kept reinforcing ${labelVibe(supportVibe).toLowerCase()} traits and circling back to ${formatPair(labelTheme(leadTheme).toLowerCase(), labelTheme(supportTheme).toLowerCase())} themes.`,
     compatibility: matchWasChosenEarlier
-      ? `${match.name} fits because you were already gravitating toward it before the finale; the app basically spent the later dates proving your subconscious right. ${routeFlavor}`
-      : `${match.name} fits because even when it stayed offstage, your picks kept building the exact emotional runway it wanted: ${vibePhrases[match.topVibes[0]]}, ${labelTheme(match.primaryTheme).toLowerCase()} flair, and a little dramatic inevitability. ${routeFlavor}`,
-    epilogue: `The invisible chance deck kept boosting ${labelTheme(boostedTheme).toLowerCase()} signals in the background, so this ending reads less like luck and more like the town conspiring on your behalf.`,
+      ? `${match.name} ranks first because you repeatedly gravitated toward the same mix of themes and visual energy. ${routeFlavor}`
+      : `${match.name} ranks first because your answers built a strong profile match for its ${vibePhrases[match.topVibes[0]]}, ${labelTheme(match.primaryTheme).toLowerCase()} focus, and overall style. ${routeFlavor}`,
+    epilogue: `Background weighting also boosted ${labelTheme(boostedTheme).toLowerCase()} elements, which helped shape the final ordering.`,
   }
 }
