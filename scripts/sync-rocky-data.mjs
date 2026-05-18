@@ -299,7 +299,7 @@ async function main() {
       comment: row.Comment?.trim() || '',
       retired: asBoolean(row.Retired),
       privateResidence: asBoolean(row.PrivateResidence),
-      imagePath: `/rockys/${imageFile}`,
+      imagePath: `rockys/${imageFile}`,
       relativeImagePath: row.relative_image_path,
       themes,
       primaryTheme: themes[0],

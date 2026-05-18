@@ -15,6 +15,22 @@ import type { RockyData, SafariAnswer } from './types'
 
 type AppView = 'home' | 'safari' | 'roster'
 
+const baseUrl = import.meta.env.BASE_URL
+
+function resolvePublicPath(path: string) {
+  if (/^(?:[a-z]+:)?\/\//i.test(path) || path.startsWith('data:')) {
+    return path
+  }
+
+  if (baseUrl !== '/' && path.startsWith(baseUrl)) {
+    return path
+  }
+
+  const trimmedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
+  const trimmedPath = path.startsWith('/') ? path.slice(1) : path
+  return `${trimmedBase}${trimmedPath}`
+}
+
 function getViewFromHash(hash: string): AppView {
   const normalizedHash = hash.replace(/^#\/?/, '').toLowerCase()
 
@@ -45,7 +61,7 @@ function App() {
     async function loadRockys() {
       try {
         setLoading(true)
-        const response = await fetch('/rockys-data.json')
+        const response = await fetch(resolvePublicPath('rockys-data.json'))
 
         if (!response.ok) {
           throw new Error(`Could not load Rocky data (${response.status})`)
@@ -54,7 +70,12 @@ function App() {
         const payload = (await response.json()) as RockyData[]
 
         if (!cancelled) {
-          setRockys(payload)
+          setRockys(
+            payload.map((rocky) => ({
+              ...rocky,
+              imagePath: resolvePublicPath(rocky.imagePath),
+            })),
+          )
           setError('')
         }
       } catch (caughtError) {
