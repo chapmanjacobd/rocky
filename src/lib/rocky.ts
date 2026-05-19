@@ -107,6 +107,15 @@ function dotProduct(left: Partial<Record<Vibe, number>>, right: Partial<Record<V
   return vibeKeys.reduce((total, key) => total + (left[key] ?? 0) * (right[key] ?? 0), 0)
 }
 
+function vectorMagnitude(profile: Partial<Record<Vibe, number>>) {
+  return Math.sqrt(vibeKeys.reduce((total, key) => total + (profile[key] ?? 0) ** 2, 0))
+}
+
+function cosineSimilarity(left: Partial<Record<Vibe, number>>, right: Partial<Record<Vibe, number>>) {
+  const denominator = vectorMagnitude(left) * vectorMagnitude(right)
+  return denominator === 0 ? 0 : dotProduct(left, right) / denominator
+}
+
 function hashString(input: string) {
   let hash = 0
 
@@ -174,7 +183,7 @@ function selectHiddenChance(scene: SceneSpec, seed: number, sceneIndex: number) 
 }
 
 function scoreChanceCard(rocky: RockyData, hiddenChance: HiddenChanceCard) {
-  let score = dotProduct(hiddenChance.vibeFocus, rocky.vibeScores)
+  let score = cosineSimilarity(hiddenChance.vibeFocus, rocky.vibeScores) * 10
 
   hiddenChance.boostThemes.forEach((theme, index) => {
     if (rocky.themes.includes(theme)) {
@@ -197,13 +206,13 @@ export function scoreRockyForOption(
   sceneType: ScenarioType,
   hiddenChance: HiddenChanceCard,
 ) {
-  let score = dotProduct(option.vibeFocus, rocky.vibeScores)
-  score += dotProduct(scenarioBias[sceneType], rocky.vibeScores) * 0.6
+  let score = cosineSimilarity(option.vibeFocus, rocky.vibeScores) * 18
+  score += cosineSimilarity(scenarioBias[sceneType], rocky.vibeScores) * 8
   score += scoreChanceCard(rocky, hiddenChance)
 
   for (const theme of option.preferredThemes) {
     if (rocky.themes.includes(theme)) {
-      score += rocky.primaryTheme === theme ? 7 : 4
+      score += rocky.primaryTheme === theme ? 6 : 3.5
     }
   }
 
@@ -251,61 +260,99 @@ export function buildSafariRun(rockys: RockyData[], scenes: SceneSpec[], seed: n
 }
 
 function buildPreferenceState(answers: SafariAnswer[]) {
+  const targetProfile = emptyProfile()
+  const selectedProfile = emptyProfile()
   const profile = emptyProfile()
   const themeWeights = new Map<string, number>()
-  const chanceWeights = new Map<string, number>()
   const chosenIds = new Set<string>()
+  const chosenRockys: RockyData[] = []
 
   answers.forEach(({ option, rocky, sceneType, hiddenChance }, index) => {
     const scenarioWeight = scenarioWeights[sceneType]
 
-    addProfile(profile, option.vibeFocus, 1.25 * scenarioWeight)
-    addProfile(profile, rocky.vibeScores, (0.6 + index * 0.05) * scenarioWeight)
-    addProfile(profile, hiddenChance.vibeFocus, 0.95)
+    addProfile(targetProfile, option.vibeFocus, 1.4 * scenarioWeight)
+    addProfile(targetProfile, hiddenChance.vibeFocus, 0.8)
+    addProfile(selectedProfile, rocky.vibeScores, (0.32 + index * 0.025) * scenarioWeight)
+
+    addProfile(profile, option.vibeFocus, 1.1 * scenarioWeight)
+    addProfile(profile, hiddenChance.vibeFocus, 0.7)
+    addProfile(profile, rocky.vibeScores, (0.2 + index * 0.02) * scenarioWeight)
 
     option.preferredThemes.forEach((theme, themeIndex) => {
-      themeWeights.set(theme, (themeWeights.get(theme) ?? 0) + (themeIndex === 0 ? 4 : 2) * scenarioWeight)
+      themeWeights.set(theme, (themeWeights.get(theme) ?? 0) + (themeIndex === 0 ? 3.2 : 1.5) * scenarioWeight)
     })
 
     rocky.themes.forEach((theme, themeIndex) => {
-      themeWeights.set(theme, (themeWeights.get(theme) ?? 0) + (themeIndex === 0 ? 2.5 : 1) * scenarioWeight)
+      themeWeights.set(theme, (themeWeights.get(theme) ?? 0) + (themeIndex === 0 ? 1.1 : 0.45) * scenarioWeight)
     })
 
     hiddenChance.boostThemes.forEach((theme, themeIndex) => {
-      themeWeights.set(theme, (themeWeights.get(theme) ?? 0) + (themeIndex === 0 ? 3.5 : 2))
-      chanceWeights.set(theme, (chanceWeights.get(theme) ?? 0) + (themeIndex === 0 ? 3 : 1.5))
+      themeWeights.set(theme, (themeWeights.get(theme) ?? 0) + (themeIndex === 0 ? 2.1 : 1.1))
     })
 
     hiddenChance.suppressThemes.forEach((theme) => {
-      themeWeights.set(theme, (themeWeights.get(theme) ?? 0) - 2.5)
-      chanceWeights.set(theme, (chanceWeights.get(theme) ?? 0) - 1.5)
+      themeWeights.set(theme, (themeWeights.get(theme) ?? 0) - 1.35)
     })
 
     chosenIds.add(rocky.slug)
+    chosenRockys.push(rocky)
   })
 
-  return { profile, themeWeights, chanceWeights, chosenIds }
+  return { profile, targetProfile, selectedProfile, themeWeights, chosenIds, chosenRockys }
 }
 
-export function matchTruePup(rockys: RockyData[], answers: SafariAnswer[]) {
-  return rankRockysByAnswers(rockys, answers)[0]?.rocky
+function buildThemeFrequency(rockys: RockyData[]) {
+  const themeFrequency = new Map<string, number>()
+
+  rockys.forEach((rocky) => {
+    rocky.themes.forEach((theme) => {
+      themeFrequency.set(theme, (themeFrequency.get(theme) ?? 0) + 1)
+    })
+  })
+
+  return themeFrequency
 }
 
-export function rankRockysByAnswers(rockys: RockyData[], answers: SafariAnswer[]) {
-  const { profile, themeWeights, chosenIds } = buildPreferenceState(answers)
+function scoreThemeAlignment(rocky: RockyData, themeWeights: Map<string, number>, themeFrequency: Map<string, number>) {
+  return rocky.themes.reduce((total, theme, index) => {
+    const rarityWeight = 1 / Math.sqrt(themeFrequency.get(theme) ?? 1)
+    const slotWeight = index === 0 ? 1.15 : 0.8
+    return total + (themeWeights.get(theme) ?? 0) * rarityWeight * slotWeight
+  }, 0)
+}
+
+function buildAnswerSignature(answers: SafariAnswer[]) {
+  return answers
+    .map(({ sceneId, option, rocky, hiddenChance }) => `${sceneId}:${option.id}:${rocky.slug}:${hiddenChance.id}`)
+    .join('|')
+}
+
+export function matchTruePup(rockys: RockyData[], answers: SafariAnswer[], seed = 0) {
+  return rankRockysByAnswers(rockys, answers, seed)[0]?.rocky
+}
+
+export function rankRockysByAnswers(rockys: RockyData[], answers: SafariAnswer[], seed = 0) {
+  const { targetProfile, selectedProfile, themeWeights, chosenIds, chosenRockys } = buildPreferenceState(answers)
+  const themeFrequency = buildThemeFrequency(rockys)
+  const answerSignature = buildAnswerSignature(answers)
 
   return rockys
     .map((rocky) => {
-      const themeScore = rocky.themes.reduce(
-        (total, theme, index) => total + (themeWeights.get(theme) ?? 0) * (index === 0 ? 1.3 : 0.8),
-        0,
-      )
+      const themeScore = scoreThemeAlignment(rocky, themeWeights, themeFrequency)
+      const chosenRockySimilarity =
+        chosenRockys.length === 0
+          ? 0
+          : chosenRockys.reduce((total, chosenRocky) => total + cosineSimilarity(rocky.vibeScores, chosenRocky.vibeScores), 0) /
+            chosenRockys.length
 
       const score =
-        dotProduct(profile, rocky.vibeScores) +
-        themeScore +
-        (chosenIds.has(rocky.slug) ? 3 : 0) +
-        (rocky.description ? 0.5 : 0)
+        cosineSimilarity(targetProfile, rocky.vibeScores) * 30 +
+        cosineSimilarity(selectedProfile, rocky.vibeScores) * 14 +
+        themeScore * 4.2 +
+        chosenRockySimilarity * 3.5 +
+        (chosenIds.has(rocky.slug) ? 0.65 : 0) +
+        jitter(seed, answerSignature, rocky.slug, 'result-rank') * 1.35 +
+        (rocky.description ? 0.35 : 0)
 
       return { rocky, score, chosenEarlier: chosenIds.has(rocky.slug) }
     })

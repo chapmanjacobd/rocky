@@ -124,8 +124,8 @@ function App() {
   const currentScene = currentGeneratedScene?.scene
   const currentCards = currentGeneratedScene?.cast ?? []
   const rankedResults = useMemo(
-    () => (answers.length === safariScenes.length ? rankRockysByAnswers(rockys, answers) : []),
-    [answers, rockys],
+    () => (answers.length === safariScenes.length ? rankRockysByAnswers(rockys, answers, seed) : []),
+    [answers, rockys, seed],
   )
   const revealedRocky = rankedResults[0]?.rocky
   const routeOutcome = useMemo(
